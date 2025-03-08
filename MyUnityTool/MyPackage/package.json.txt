@@ -1,8 +1,8 @@
 {
-  "name": "com.Test",
+  "name": "com.myunitytool",
   "version": "1.0.0",
-  "displayName": "Unity Toolkit",
-  "description": "A custom Unity Toolkit for tools and utilities.",
+  "displayName": "My Unity Tool",
+  "description": "A custom Unity tool for SideProject.",
   "unity": "2021.3",
   "author": {
     "name": "Your Name",
