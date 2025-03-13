@@ -1,0 +1,12 @@
+{
+  "name": "com.ui.framework",
+  "version": "1.0.0",
+  "displayName": "UIFramework",
+  "description": "UIFramework.",
+  "unity": "2022.3.18",
+  "author": {
+    "name": "Wade",
+    "email": "w0652039@gmail.com"
+  },
+  "dependencies": {}
+}
