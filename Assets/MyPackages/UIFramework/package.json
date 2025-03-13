@@ -1,9 +1,9 @@
 {
-  "name": "com.myunitytool.uiframework",
+  "name": "com.wade.uiframework",
   "version": "1.0.0",
-  "displayName": "UIFramework",
-  "description": "UIFramework.",
-  "unity": "2022.3.18",
+  "displayName": "UI Framework",
+  "description": "A flexible and extensible UI framework for Unity projects.",
+  "unity": "2022.3",
   "author": {
     "name": "Wade",
     "email": "w0652039@gmail.com"
