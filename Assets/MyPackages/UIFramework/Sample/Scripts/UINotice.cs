@@ -1,7 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using TinyTeam.UI;
-using UnityEngine;
 using UnityEngine.UI;
 
 public class UINotice : UIPage

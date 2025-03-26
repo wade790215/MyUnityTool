@@ -1,8 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using TinyTeam.UI;
-using UnityEngine;
 using UnityEngine.UI;
 
 public class UIBattle : UIPage {

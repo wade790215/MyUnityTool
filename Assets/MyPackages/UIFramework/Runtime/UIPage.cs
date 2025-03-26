@@ -2,7 +2,6 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using TinyTeam.UI;
 using Object = UnityEngine.Object;
 
 public enum UIType
@@ -100,7 +99,7 @@ public abstract class UIPage
     ///Active this UI
     public virtual void Active()
     {
-        this.gameObject.SetActive(true);
+        gameObject.SetActive(true);
         isActived = true;
     }
 
@@ -109,10 +108,9 @@ public abstract class UIPage
     /// </summary>
     public virtual void Hide()
     {
-        this.gameObject.SetActive(false);
+        gameObject.SetActive(false);
         isActived = false;
-        //set this page's data null when hide.
-        this.m_data = null;
+        m_data = null;
     }
 
     #endregion
@@ -126,23 +124,19 @@ public abstract class UIPage
     public UIPage(UIType type, UIMode mod, UICollider col)
     {
         this.type = type;
-        this.mode = mod;
-        this.collider = col;
-        this.name = this.GetType().ToString();
-
-        //when create one page.
-        //bind special delegate .
-        TTUIBind.Bind();
-        //Debug.LogWarning("[UI] create page:" + ToString());
+        mode = mod;
+        collider = col;
+        name = GetType().ToString();
+        UIBind.Bind();
     }
 
     /// <summary>
     /// Sync Show UI Logic
     /// </summary>
-    protected void Show()
+    private void Show()
     {
         //1:instance UI
-        if (this.gameObject == null && string.IsNullOrEmpty(uiPath) == false)
+        if (gameObject == null && string.IsNullOrEmpty(uiPath) == false)
         {
             GameObject go = null;
             if (delegateSyncLoadUI != null)
@@ -186,14 +180,14 @@ public abstract class UIPage
     /// </summary>
     protected void Show(Action callback)
     {
-        TTUIRoot.Instance.StartCoroutine(AsyncShow(callback));
+        UIRoot.Instance.StartCoroutine(AsyncShow(callback));
     }
 
     IEnumerator AsyncShow(Action callback)
     {
         //1:Instance UI
         //FIX:support this is manager multi gameObject,instance by your self.
-        if (this.gameObject == null && string.IsNullOrEmpty(uiPath) == false)
+        if (gameObject == null && string.IsNullOrEmpty(uiPath) == false)
         {
             GameObject go = null;
             bool _loading = true;
@@ -253,10 +247,10 @@ public abstract class UIPage
 
     protected void AnchorUIGameObject(GameObject ui)
     {
-        if (TTUIRoot.Instance == null || ui == null) return;
+        if (UIRoot.Instance == null || ui == null) return;
 
-        this.gameObject = ui;
-        this.transform = ui.transform;
+        gameObject = ui;
+        transform = ui.transform;
 
         //check if this is ugui or (ngui)?
         Vector3 anchorPos = Vector3.zero;
@@ -278,15 +272,15 @@ public abstract class UIPage
 
         if (type == UIType.Fixed)
         {
-            ui.transform.SetParent(TTUIRoot.Instance.fixedRoot);
+            ui.transform.SetParent(UIRoot.Instance.fixedRoot);
         }
         else if (type == UIType.Normal)
         {
-            ui.transform.SetParent(TTUIRoot.Instance.normalRoot);
+            ui.transform.SetParent(UIRoot.Instance.normalRoot);
         }
         else if (type == UIType.PopUp)
         {
-            ui.transform.SetParent(TTUIRoot.Instance.popupRoot);
+            ui.transform.SetParent(UIRoot.Instance.popupRoot);
         }
 
 

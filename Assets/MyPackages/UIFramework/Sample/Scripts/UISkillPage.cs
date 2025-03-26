@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 
@@ -87,7 +85,7 @@ public class UISkillPage : UIPage {
         currentItem = skill;
         skillDesc.SetActive(true);
         skillDesc.transform.localPosition = new Vector3(300f, skillDesc.transform.localPosition.y, skillDesc.transform.localPosition.z);
-        skillDesc.GetComponent<RectTransform>().DOAnchorPos(new Vector2(-289.28f, -44.05f), 0.25f, true);
+        //skillDesc.GetComponent<RectTransform>().DOAnchorPos(new Vector2(-289.28f, -44.05f), 0.25f, true);
 
         RefreshDesc(skill);
     }
