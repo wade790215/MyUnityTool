@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine.UI;
 
-public class UISkillPage : UIPage {
-
+public class UISkillPage : UIPage
+{
     GameObject skillList = null;
     GameObject skillDesc = null;
     GameObject skillItem = null;
@@ -28,30 +28,23 @@ public class UISkillPage : UIPage {
 
     public override void Refresh()
     {
-        //default desc deactive
         skillDesc.SetActive(false);
-
         skillList.transform.localScale = Vector3.zero;
         skillList.transform.DOScale(new Vector3(1, 1, 1), 0.5f);
-
-        //Get Skill Data.
-        //NOTE:here,maybe you havent Show(...pageData),ofcause you can got your skill data from your data singleton
         UDSkill skillData = this.data != null ? this.data as UDSkill : GameData.Instance.playerSkill;
-        
-        //create skill items in list.
-        for(int i=0;i< skillData.skills.Count; i++)
+        for (int i = 0; i < skillData.skills.Count; i++)
         {
             CreateSkillItem(skillData.skills[i]);
         }
-
     }
 
     public override void Hide()
     {
-        for(int i=0; i < skillItems.Count; i++)
+        for (int i = 0; i < skillItems.Count; i++)
         {
             GameObject.Destroy(skillItems[i].gameObject);
         }
+
         skillItems.Clear();
 
         this.gameObject.SetActive(false);
@@ -76,7 +69,8 @@ public class UISkillPage : UIPage {
 
     private void OnClickSkillItem()
     {
-        UISkillItem item = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.GetComponent<UISkillItem>();
+        UISkillItem item = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject
+            .GetComponent<UISkillItem>();
         ShowDesc(item);
     }
 
@@ -84,7 +78,8 @@ public class UISkillPage : UIPage {
     {
         currentItem = skill;
         skillDesc.SetActive(true);
-        skillDesc.transform.localPosition = new Vector3(300f, skillDesc.transform.localPosition.y, skillDesc.transform.localPosition.z);
+        skillDesc.transform.localPosition = new Vector3(300f, skillDesc.transform.localPosition.y,
+            skillDesc.transform.localPosition.z);
         //skillDesc.GetComponent<RectTransform>().DOAnchorPos(new Vector2(-289.28f, -44.05f), 0.25f, true);
 
         RefreshDesc(skill);
@@ -92,7 +87,8 @@ public class UISkillPage : UIPage {
 
     private void RefreshDesc(UISkillItem skill)
     {
-        skillDesc.transform.Find("content").GetComponent<Text>().text = skill.data.desc + "\n名称:" + skill.data.name + "\n等级:" + skill.data.level;
+        skillDesc.transform.Find("content").GetComponent<Text>().text =
+            skill.data.desc + "\n名称:" + skill.data.name + "\n等级:" + skill.data.level;
     }
 
     private void OnClickUpgrade()
@@ -103,5 +99,4 @@ public class UISkillPage : UIPage {
     }
 
     #endregion
-
 }

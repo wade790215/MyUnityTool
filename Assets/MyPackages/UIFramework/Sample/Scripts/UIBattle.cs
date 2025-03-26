@@ -16,7 +16,6 @@ public class UIBattle : UIPage {
 
     private void OnClickSkillGo()
     {
-        //goto skill upgrade page.
         ShowPage<UISkillPage>();
     }
 

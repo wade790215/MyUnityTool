@@ -3,14 +3,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// Init The UI Root
-/// 
 /// UIRoot
 /// -Canvas
 /// --FixedRoot
 /// --NormalRoot
 /// --PopupRoot
-/// -Camera
+/// -UICamera
 /// </summary>
 public class UIRoot : MonoBehaviour
 {

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class UIBind : MonoBehaviour
+public class UIBind
 {
     static bool isBind = false;
 
