@@ -1,23 +1,27 @@
-﻿using UnityEngine;
+﻿using MyPackages.UIFramework.Runtime;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class UINotice : UIPage
+namespace MyPackages.UIFramework.Sample.Scripts
 {
-    public UINotice() : base(UIType.PopUp, UIMode.DoNothing, UICollider.Normal)
+    public class UINotice : UIPage
     {
-        uiPath = "Prefab/Notice";
-    }
-
-    public override void Awake(GameObject go)
-    {
-        this.gameObject.transform.Find("content/btn_confim").GetComponent<Button>().onClick.AddListener(() =>
+        public UINotice() : base(UIType.PopUp, UIMode.DoNothing, UICollider.Normal)
         {
-            Hide();
-        });
-    }
+            uiPath = "Prefab/Notice";
+        }
 
-    public override void Refresh()
-    {
+        protected override void Awake(GameObject go)
+        {
+            gameObject.transform.Find("content/btn_confim").GetComponent<Button>().onClick.AddListener(() =>
+            {
+                Hide();
+            });
+        }
 
+        protected override void Refresh()
+        {
+
+        }
     }
 }

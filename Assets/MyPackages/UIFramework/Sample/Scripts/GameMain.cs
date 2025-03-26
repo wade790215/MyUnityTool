@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+﻿using MyPackages.UIFramework.Runtime;
+using UnityEngine;
 
-public class GameMain : MonoBehaviour
+namespace MyPackages.UIFramework.Sample.Scripts
 {
-    void Start()
+    public class GameMain : MonoBehaviour
     {
-        UIPage.ShowPage<UITopBar>();
-        UIPage.ShowPage<UIMainPage>();
+        private void Start()
+        {
+            UIPage.ShowPage<UITopBar>();
+            UIPage.ShowPage<UIMainPage>();
+        }
     }
 }

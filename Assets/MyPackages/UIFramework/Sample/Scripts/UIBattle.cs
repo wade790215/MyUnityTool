@@ -1,26 +1,30 @@
-﻿using UnityEngine;
+﻿using MyPackages.UIFramework.Runtime;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class UIBattle : UIPage {
+namespace MyPackages.UIFramework.Sample.Scripts
+{
+    public class UIBattle : UIPage {
 
-    public UIBattle() : base(UIType.Normal, UIMode.HideOther, UICollider.None)
-    {
-        uiPath = "Prefab/UIBattle";
-    }
+        public UIBattle() : base(UIType.Normal, UIMode.HideOther, UICollider.None)
+        {
+            uiPath = "Prefab/UIBattle";
+        }
 
-    public override void Awake(GameObject go)
-    {
-        this.transform.Find("btn_skill").GetComponent<Button>().onClick.AddListener(OnClickSkillGo);
-        this.transform.Find("btn_battle").GetComponent<Button>().onClick.AddListener(OnClickGoBattle);
-    }
+        protected override void Awake(GameObject go)
+        {
+            transform.Find("btn_skill").GetComponent<Button>().onClick.AddListener(OnClickSkillGo);
+            transform.Find("btn_battle").GetComponent<Button>().onClick.AddListener(OnClickGoBattle);
+        }
 
-    private void OnClickSkillGo()
-    {
-        ShowPage<UISkillPage>();
-    }
+        private void OnClickSkillGo()
+        {
+            ShowPage<UISkillPage>();
+        }
 
-    private void OnClickGoBattle()
-    {
-        Debug.Log("should load your battle scene!");
+        private void OnClickGoBattle()
+        {
+            Debug.Log("should load your battle scene!");
+        }
     }
 }

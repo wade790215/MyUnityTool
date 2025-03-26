@@ -1,434 +1,443 @@
 ﻿using System;
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
-public enum UIType
+namespace MyPackages.UIFramework.Runtime
 {
-    Normal,
-    Fixed,
-    PopUp,
-    None, //独立的窗口
-}
-
-public enum UIMode
-{
-    DoNothing,
-    HideOther, // 闭其他界面
-    NeedBack, // 点击返回按钮关闭当前,不关闭其他界面(需要调整好层级关系)
-    NoNeedBack, // 关闭TopBar,关闭其他界面,不加入backSequence队列
-}
-
-public enum UICollider
-{
-    None, // 显示该界面不包含碰撞背景
-    Normal, // 碰撞透明背景
-    WithBg, // 碰撞非透明背景
-}
-
-public abstract class UIPage
-{
-    public string name = string.Empty;
-
-    //this page's id
-    public int id = -1;
-
-    //this page's type
-    public UIType type = UIType.Normal;
-
-    //how to show this page.
-    public UIMode mode = UIMode.DoNothing;
-
-    //the background collider mode
-    public UICollider collider = UICollider.None;
-
-    //path to load ui
-    public string uiPath = string.Empty;
-
-    //this ui's gameobject
-    public GameObject gameObject;
-    public Transform transform;
-
-    //all pages with the union type
-    private static Dictionary<string, UIPage> m_allPages;
-
-    public static Dictionary<string, UIPage> allPages
+    public enum UIType
     {
-        get { return m_allPages; }
+        Normal,
+        Fixed,
+        PopUp,
+        None, //独立的窗口
     }
 
-    //control 1>2>3>4>5 each page close will back show the previus page.
-    private static List<UIPage> m_currentPageNodes;
-
-    public static List<UIPage> currentPageNodes
+    public enum UIMode
     {
-        get { return m_currentPageNodes; }
+        DoNothing,
+        HideOther, // 闭其他界面
+        NeedBack, // 点击返回按钮关闭当前,不关闭其他界面(需要调整好层级关系)
+        NoNeedBack, // 关闭TopBar,关闭其他界面,不加入backSequence队列
     }
 
-    //record this ui load mode.async or sync.
-    private bool isAsyncUI = false;
-
-    //this page active flag
-    protected bool isActived = false;
-
-    //refresh page 's data.
-    private object m_data = null;
-
-    protected object data
+    public enum UICollider
     {
-        get { return m_data; }
+        None, // 显示该界面不包含碰撞背景
+        Normal, // 碰撞透明背景
+        WithBg, // 碰撞非透明背景
     }
 
-    //delegate load ui function.
-    public static Func<string, Object> delegateSyncLoadUI = null;
-    public static Action<string, Action<Object>> delegateAsyncLoadUI = null;
-
-    #region virtual api
-
-    ///When Instance UI Ony Once.
-    public virtual void Awake(GameObject go)
+    public abstract class UIPage
     {
-    }
+        public static List<UIPage> currentPageNodes => m_currentPageNodes;
+        public static Dictionary<string, UIPage> allPages => m_allPages;
+        public static Func<string, Object> delegateSyncLoadUI = null;
 
-    ///Show UI Refresh Eachtime.
-    public virtual void Refresh()
-    {
-    }
+        private static Dictionary<string, UIPage> m_allPages;
+        private static List<UIPage> m_currentPageNodes;
+        private static Action<string, Action<Object>> delegateAsyncLoadUI = null;
 
-    ///Active this UI
-    public virtual void Active()
-    {
-        gameObject.SetActive(true);
-        isActived = true;
-    }
+        protected object data => m_data;
+        protected GameObject gameObject;
+        protected Transform transform;
+        protected string uiPath = string.Empty;
 
-    /// <summary>
-    /// Only Deactive UI wont clear Data.
-    /// </summary>
-    public virtual void Hide()
-    {
-        gameObject.SetActive(false);
-        isActived = false;
-        m_data = null;
-    }
+        private UIType type = UIType.Normal;
+        private UIMode mode = UIMode.DoNothing;
+        private UICollider collider = UICollider.None;
+        private int id = -1;
+        private string name = string.Empty;
+        private bool isAsyncUI = false;
+        private bool isActived = false;
+        private object m_data = null;
 
-    #endregion
+        #region UI_API
 
-    #region internal api
-
-    private UIPage()
-    {
-    }
-
-    public UIPage(UIType type, UIMode mod, UICollider col)
-    {
-        this.type = type;
-        mode = mod;
-        collider = col;
-        name = GetType().ToString();
-        UIBind.Bind();
-    }
-
-    /// <summary>
-    /// Sync Show UI Logic
-    /// </summary>
-    private void Show()
-    {
-        //1:instance UI
-        if (gameObject == null && string.IsNullOrEmpty(uiPath) == false)
+        protected virtual void Awake(GameObject go)
         {
-            GameObject go = null;
-            if (delegateSyncLoadUI != null)
+        }
+
+        protected virtual void Refresh()
+        {
+        }
+
+        protected virtual void Active()
+        {
+            gameObject.SetActive(true);
+            isActived = true;
+        }
+
+        protected virtual void Hide()
+        {
+            gameObject.SetActive(false);
+            isActived = false;
+            m_data = null;
+        }
+
+        #endregion
+
+        #region internal api
+
+        private UIPage()
+        {
+        }
+
+        protected UIPage(UIType type, UIMode mod, UICollider col)
+        {
+            this.type = type;
+            mode = mod;
+            collider = col;
+            name = GetType().ToString();
+            UIBind.Bind();
+        }
+
+        /// <summary>
+        /// Sync Show UI 
+        /// </summary>
+        private void Show()
+        {
+            if (gameObject == null && string.IsNullOrEmpty(uiPath) == false)
             {
-                Object o = delegateSyncLoadUI(uiPath);
-                go = o != null ? GameObject.Instantiate(o) as GameObject : null;
+                GameObject go = null;
+                if (delegateSyncLoadUI != null)
+                {
+                    Object o = delegateSyncLoadUI(uiPath);
+                    go = o != null ? GameObject.Instantiate(o) as GameObject : null;
+                }
+                else
+                {
+                    go = GameObject.Instantiate(Resources.Load(uiPath)) as GameObject;
+                }
+
+                if (go == null)
+                {
+                    Debug.LogError("[UI] Cant sync load your ui prefab.");
+                    return;
+                }
+
+                AnchorUIGameObject(go);
+                Awake(go);
+                isAsyncUI = false;
+            }
+
+            Active();
+            Refresh();
+            PopNode(this);
+        }
+
+        /// <summary>
+        /// Async Show UI Logic
+        /// </summary>
+        private void Show(Action callback)
+        {
+            UIRoot.Instance.StartCoroutine(AsyncShow(callback));
+        }
+
+        IEnumerator AsyncShow(Action callback)
+        {
+            //Instance UI
+            if (gameObject == null && string.IsNullOrEmpty(uiPath) == false)
+            {
+                GameObject go = null;
+                bool _loading = true;
+                delegateAsyncLoadUI(uiPath, (o) =>
+                {
+                    go = o != null ? GameObject.Instantiate(o) as GameObject : null;
+                    AnchorUIGameObject(go);
+                    Awake(go);
+                    isAsyncUI = true;
+                    _loading = false;
+
+                    Active();
+                    Refresh();
+                    PopNode(this);
+                    if (callback != null) callback();
+                });
+
+                float _t0 = Time.realtimeSinceStartup;
+                while (_loading)
+                {
+                    if (Time.realtimeSinceStartup - _t0 >= 10.0f)
+                    {
+                        Debug.LogError("[UI] WTF async load your ui prefab timeout!");
+                        yield break;
+                    }
+
+                    yield return null;
+                }
             }
             else
             {
-                go = GameObject.Instantiate(Resources.Load(uiPath)) as GameObject;
+                Active();
+                Refresh();
+                PopNode(this);
+                if (callback != null) callback();
+            }
+        }
+
+        internal bool CheckIfNeedBack()
+        {
+            if (type == UIType.Fixed || type == UIType.PopUp || type == UIType.None) return false;
+            else if (mode == UIMode.NoNeedBack || mode == UIMode.DoNothing) return false;
+            return true;
+        }
+
+        protected void AnchorUIGameObject(GameObject ui)
+        {
+            if (UIRoot.Instance == null || ui == null) return;
+
+            gameObject = ui;
+            transform = ui.transform;
+
+            Vector3 anchorPos = Vector3.zero;
+            Vector2 sizeDel = Vector2.zero;
+            Vector3 scale = Vector3.one;
+            if (ui.GetComponent<RectTransform>() != null)
+            {
+                anchorPos = ui.GetComponent<RectTransform>().anchoredPosition;
+                sizeDel = ui.GetComponent<RectTransform>().sizeDelta;
+                scale = ui.GetComponent<RectTransform>().localScale;
+            }
+            else
+            {
+                anchorPos = ui.transform.localPosition;
+                scale = ui.transform.localScale;
             }
 
-            //protected.
-            if (go == null)
+            if (type == UIType.Fixed)
             {
-                Debug.LogError("[UI] Cant sync load your ui prefab.");
+                ui.transform.SetParent(UIRoot.Instance.fixedRoot);
+            }
+            else if (type == UIType.Normal)
+            {
+                ui.transform.SetParent(UIRoot.Instance.normalRoot);
+            }
+            else if (type == UIType.PopUp)
+            {
+                ui.transform.SetParent(UIRoot.Instance.popupRoot);
+            }
+
+
+            if (ui.GetComponent<RectTransform>() != null)
+            {
+                ui.GetComponent<RectTransform>().anchoredPosition = anchorPos;
+                ui.GetComponent<RectTransform>().sizeDelta = sizeDel;
+                ui.GetComponent<RectTransform>().localScale = scale;
+            }
+            else
+            {
+                ui.transform.localPosition = anchorPos;
+                ui.transform.localScale = scale;
+            }
+        }
+
+        public override string ToString()
+        {
+            return ">Name:" + name + ",ID:" + id + ",Type:" + type.ToString() + ",ShowMode:" + mode.ToString() +
+                   ",Collider:" + collider.ToString();
+        }
+
+        private bool DOIsActive()
+        {
+            bool ret = gameObject != null && gameObject.activeSelf;
+            return ret || isActived;
+        }
+
+        #endregion
+
+        #region static api
+
+        private static bool CheckIfNeedBack(UIPage page)
+        {
+            return page != null && page.CheckIfNeedBack();
+        }
+
+        private static void PopNode(UIPage page)
+        {
+            if (m_currentPageNodes == null)
+            {
+                m_currentPageNodes = new List<UIPage>();
+            }
+
+            if (page == null)
+            {
+                Debug.LogError("[UI] page popup is null.");
                 return;
             }
 
-            AnchorUIGameObject(go);
-
-            //after instance should awake init.
-            Awake(go);
-
-            //mark this ui sync ui
-            isAsyncUI = false;
-        }
-
-        //:animation or init when active.
-        Active();
-
-        //:refresh ui component.
-        Refresh();
-
-        //:popup this node to top if need back.
-        PopNode(this);
-    }
-
-    /// <summary>
-    /// Async Show UI Logic
-    /// </summary>
-    protected void Show(Action callback)
-    {
-        UIRoot.Instance.StartCoroutine(AsyncShow(callback));
-    }
-
-    IEnumerator AsyncShow(Action callback)
-    {
-        //1:Instance UI
-        //FIX:support this is manager multi gameObject,instance by your self.
-        if (gameObject == null && string.IsNullOrEmpty(uiPath) == false)
-        {
-            GameObject go = null;
-            bool _loading = true;
-            delegateAsyncLoadUI(uiPath, (o) =>
+            if (CheckIfNeedBack(page) == false)
             {
-                go = o != null ? GameObject.Instantiate(o) as GameObject : null;
-                AnchorUIGameObject(go);
-                Awake(go);
-                isAsyncUI = true;
-                _loading = false;
+                return;
+            }
 
-                //:animation active.
-                Active();
-
-                //:refresh ui component.
-                Refresh();
-
-                //:popup this node to top if need back.
-                PopNode(this);
-
-                if (callback != null) callback();
-            });
-
-            float _t0 = Time.realtimeSinceStartup;
-            while (_loading)
+            bool _isFound = false;
+            for (int i = 0; i < m_currentPageNodes.Count; i++)
             {
-                if (Time.realtimeSinceStartup - _t0 >= 10.0f)
+                if (m_currentPageNodes[i].Equals(page))
                 {
-                    Debug.LogError("[UI] WTF async load your ui prefab timeout!");
-                    yield break;
+                    m_currentPageNodes.RemoveAt(i);
+                    m_currentPageNodes.Add(page);
+                    _isFound = true;
+                    break;
                 }
-
-                yield return null;
             }
-        }
-        else
-        {
-            //:animation active.
-            Active();
 
-            //:refresh ui component.
-            Refresh();
-
-            //:popup this node to top if need back.
-            PopNode(this);
-
-            if (callback != null) callback();
-        }
-    }
-
-    internal bool CheckIfNeedBack()
-    {
-        if (type == UIType.Fixed || type == UIType.PopUp || type == UIType.None) return false;
-        else if (mode == UIMode.NoNeedBack || mode == UIMode.DoNothing) return false;
-        return true;
-    }
-
-    protected void AnchorUIGameObject(GameObject ui)
-    {
-        if (UIRoot.Instance == null || ui == null) return;
-
-        gameObject = ui;
-        transform = ui.transform;
-
-        //check if this is ugui or (ngui)?
-        Vector3 anchorPos = Vector3.zero;
-        Vector2 sizeDel = Vector2.zero;
-        Vector3 scale = Vector3.one;
-        if (ui.GetComponent<RectTransform>() != null)
-        {
-            anchorPos = ui.GetComponent<RectTransform>().anchoredPosition;
-            sizeDel = ui.GetComponent<RectTransform>().sizeDelta;
-            scale = ui.GetComponent<RectTransform>().localScale;
-        }
-        else
-        {
-            anchorPos = ui.transform.localPosition;
-            scale = ui.transform.localScale;
-        }
-
-        //Debug.Log("anchorPos:" + anchorPos + "|sizeDel:" + sizeDel);
-
-        if (type == UIType.Fixed)
-        {
-            ui.transform.SetParent(UIRoot.Instance.fixedRoot);
-        }
-        else if (type == UIType.Normal)
-        {
-            ui.transform.SetParent(UIRoot.Instance.normalRoot);
-        }
-        else if (type == UIType.PopUp)
-        {
-            ui.transform.SetParent(UIRoot.Instance.popupRoot);
-        }
-
-
-        if (ui.GetComponent<RectTransform>() != null)
-        {
-            ui.GetComponent<RectTransform>().anchoredPosition = anchorPos;
-            ui.GetComponent<RectTransform>().sizeDelta = sizeDel;
-            ui.GetComponent<RectTransform>().localScale = scale;
-        }
-        else
-        {
-            ui.transform.localPosition = anchorPos;
-            ui.transform.localScale = scale;
-        }
-    }
-
-    public override string ToString()
-    {
-        return ">Name:" + name + ",ID:" + id + ",Type:" + type.ToString() + ",ShowMode:" + mode.ToString() +
-               ",Collider:" + collider.ToString();
-    }
-
-    public bool isActive()
-    {
-        //fix,if this page is not only one gameObject
-        //so,should check isActived too.
-        bool ret = gameObject != null && gameObject.activeSelf;
-        return ret || isActived;
-    }
-
-    #endregion
-
-    #region static api
-
-    private static bool CheckIfNeedBack(UIPage page)
-    {
-        return page != null && page.CheckIfNeedBack();
-    }
-
-    /// <summary>
-    /// make the target node to the top.
-    /// </summary>
-    private static void PopNode(UIPage page)
-    {
-        if (m_currentPageNodes == null)
-        {
-            m_currentPageNodes = new List<UIPage>();
-        }
-
-        if (page == null)
-        {
-            Debug.LogError("[UI] page popup is null.");
-            return;
-        }
-
-        //sub pages should not need back.
-        if (CheckIfNeedBack(page) == false)
-        {
-            return;
-        }
-
-        bool _isFound = false;
-        for (int i = 0; i < m_currentPageNodes.Count; i++)
-        {
-            if (m_currentPageNodes[i].Equals(page))
+            if (!_isFound)
             {
-                m_currentPageNodes.RemoveAt(i);
                 m_currentPageNodes.Add(page);
-                _isFound = true;
-                break;
             }
+
+            HideOldNodes();
         }
 
-        //if dont found in old nodes
-        //should add in nodelist.
-        if (!_isFound)
+        private static void HideOldNodes()
         {
-            m_currentPageNodes.Add(page);
-        }
-
-        //after pop should hide the old node if need.
-        HideOldNodes();
-    }
-
-    private static void HideOldNodes()
-    {
-        if (m_currentPageNodes.Count < 0) return;
-        UIPage topPage = m_currentPageNodes[m_currentPageNodes.Count - 1];
-        if (topPage.mode == UIMode.HideOther)
-        {
-            //form bottm to top.
-            for (int i = m_currentPageNodes.Count - 2; i >= 0; i--)
+            if (m_currentPageNodes.Count < 0) return;
+            UIPage topPage = m_currentPageNodes[m_currentPageNodes.Count - 1];
+            if (topPage.mode == UIMode.HideOther)
             {
-                if (m_currentPageNodes[i].isActive())
-                    m_currentPageNodes[i].Hide();
+                //form bottom to top.
+                for (int i = m_currentPageNodes.Count - 2; i >= 0; i--)
+                {
+                    if (m_currentPageNodes[i].DOIsActive())
+                        m_currentPageNodes[i].Hide();
+                }
             }
         }
-    }
 
-    public static void ClearNodes()
-    {
-        m_currentPageNodes.Clear();
-    }
-
-    private static void ShowPage<T>(Action callback, object pageData, bool isAsync) where T : UIPage, new()
-    {
-        Type t = typeof(T);
-        string pageName = t.ToString();
-
-        if (m_allPages != null && m_allPages.ContainsKey(pageName))
+        public static void ClearNodes()
         {
-            ShowPage(pageName, m_allPages[pageName], callback, pageData, isAsync);
-        }
-        else
-        {
-            T instance = new T();
-            ShowPage(pageName, instance, callback, pageData, isAsync);
-        }
-    }
-
-    private static void ShowPage(string pageName, UIPage pageInstance, Action callback, object pageData, bool isAsync)
-    {
-        if (string.IsNullOrEmpty(pageName) || pageInstance == null)
-        {
-            Debug.LogError("[UI] show page error with :" + pageName + " maybe null instance.");
-            return;
+            m_currentPageNodes.Clear();
         }
 
-        if (m_allPages == null)
+        /// <summary>
+        /// Show Page
+        /// </summary>
+        /// <param name="pageName"></param>
+        /// <param name="pageInstance"></param>
+        public static void ShowPage(string pageName, UIPage pageInstance)
         {
-            m_allPages = new Dictionary<string, UIPage>();
+            ShowPage(pageName, pageInstance, null, null, false);
         }
 
-        UIPage page = null;
-        if (m_allPages.ContainsKey(pageName))
+        /// <summary>
+        /// Show Page With Page Data Input.
+        /// </summary>
+        /// <param name="pageName"></param>
+        /// <param name="pageInstance"></param>
+        /// <param name="pageData"></param>
+        public static void ShowPage(string pageName, UIPage pageInstance, object pageData)
         {
-            page = m_allPages[pageName];
+            ShowPage(pageName, pageInstance, null, pageData, false);
         }
-        else
+        
+        /// <summary>
+        /// Async Show Page
+        /// </summary>
+        /// <param name="pageName"></param>
+        /// <param name="pageInstance"></param>
+        /// <param name="callback"></param>
+        public static void ShowPage(string pageName, UIPage pageInstance, Action callback)
         {
-            m_allPages.Add(pageName, pageInstance);
-            page = pageInstance;
+            ShowPage(pageName, pageInstance, callback, null, true);
         }
 
-        //if active before,wont active again.
-        //if (page.isActive() == false)
+        
+        /// <summary>
+        /// Async Show Page With Page Data Input.
+        /// </summary>
+        /// <param name="pageName"></param>
+        /// <param name="pageInstance"></param>
+        /// <param name="callback"></param>
+        /// <param name="pageData"></param>
+        public static void ShowPage(string pageName, UIPage pageInstance, Action callback, object pageData)
         {
-            //before show should set this data if need. maybe.!!
+            ShowPage(pageName, pageInstance, callback, pageData, true);
+        }
+
+        /// <summary>
+        /// Async Show Page
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void ShowPage<T>(Action callback) where T : UIPage, new()
+        {
+            ShowPage<T>(callback, null, true);
+        }
+
+        /// <summary>
+        /// Async Show Page With Page Data Input.
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="pageData"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void ShowPage<T>(Action callback, object pageData) where T : UIPage, new()
+        {
+            ShowPage<T>(callback, pageData, true);
+        }
+
+        /// <summary>
+        /// Sync Show Page
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static void ShowPage<T>() where T : UIPage, new()
+        {
+            ShowPage<T>(null, null, false);
+        }
+
+        /// <summary>
+        /// Sync Show Page With Page Data Input.
+        /// </summary>
+        /// <param name="pageData"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void ShowPage<T>(object pageData) where T : UIPage, new()
+        {
+            ShowPage<T>(null, pageData, false);
+        }
+        
+        private static void ShowPage<T>(Action callback, object pageData, bool isAsync) where T : UIPage, new()
+        {
+            Type t = typeof(T);
+            string pageName = t.ToString();
+
+            if (m_allPages != null && m_allPages.ContainsKey(pageName))
+            {
+                ShowPage(pageName, m_allPages[pageName], callback, pageData, isAsync);
+            }
+            else
+            {
+                T instance = new T();
+                ShowPage(pageName, instance, callback, pageData, isAsync);
+            }
+        }
+        
+        private static void ShowPage(string pageName, UIPage pageInstance, Action callback, object pageData,
+            bool isAsync)
+        {
+            if (string.IsNullOrEmpty(pageName) || pageInstance == null)
+            {
+                Debug.LogError("[UI] show page error with :" + pageName + " maybe null instance.");
+                return;
+            }
+
+            if (m_allPages == null)
+            {
+                m_allPages = new Dictionary<string, UIPage>();
+            }
+
+            UIPage page = null;
+            if (m_allPages.TryGetValue(pageName, out var allPage))
+            {
+                page = allPage;
+            }
+            else
+            {
+                m_allPages.Add(pageName, pageInstance);
+                page = pageInstance;
+            }
+
             page.m_data = pageData;
 
             if (isAsync)
@@ -436,115 +445,17 @@ public abstract class UIPage
             else
                 page.Show();
         }
-    }
 
-    /// <summary>
-    /// Sync Show Page
-    /// </summary>
-    public static void ShowPage<T>() where T : UIPage, new()
-    {
-        ShowPage<T>(null, null, false);
-    }
-
-    /// <summary>
-    /// Sync Show Page With Page Data Input.
-    /// </summary>
-    public static void ShowPage<T>(object pageData) where T : UIPage, new()
-    {
-        ShowPage<T>(null, pageData, false);
-    }
-
-    public static void ShowPage(string pageName, UIPage pageInstance)
-    {
-        ShowPage(pageName, pageInstance, null, null, false);
-    }
-
-    public static void ShowPage(string pageName, UIPage pageInstance, object pageData)
-    {
-        ShowPage(pageName, pageInstance, null, pageData, false);
-    }
-
-    /// <summary>
-    /// Async Show Page with Async loader bind in 'TTUIBind.Bind()'
-    /// </summary>
-    public static void ShowPage<T>(Action callback) where T : UIPage, new()
-    {
-        ShowPage<T>(callback, null, true);
-    }
-
-    public static void ShowPage<T>(Action callback, object pageData) where T : UIPage, new()
-    {
-        ShowPage<T>(callback, pageData, true);
-    }
-
-    /// <summary>
-    /// Async Show Page with Async loader bind in 'TTUIBind.Bind()'
-    /// </summary>
-    public static void ShowPage(string pageName, UIPage pageInstance, Action callback)
-    {
-        ShowPage(pageName, pageInstance, callback, null, true);
-    }
-
-    public static void ShowPage(string pageName, UIPage pageInstance, Action callback, object pageData)
-    {
-        ShowPage(pageName, pageInstance, callback, pageData, true);
-    }
-
-    /// <summary>
-    /// close current page in the "top" node.
-    /// </summary>
-    public static void ClosePage()
-    {
-        //Debug.Log("Back&Close PageNodes Count:" + m_currentPageNodes.Count);
-
-        if (m_currentPageNodes == null || m_currentPageNodes.Count <= 1) return;
-
-        UIPage closePage = m_currentPageNodes[m_currentPageNodes.Count - 1];
-        m_currentPageNodes.RemoveAt(m_currentPageNodes.Count - 1);
-
-        //show older page.
-        //TODO:Sub pages.belong to root node.
-        if (m_currentPageNodes.Count > 0)
+        /// <summary>
+        /// close current page in the "top" node.
+        /// </summary>
+        protected static void ClosePage()
         {
-            UIPage page = m_currentPageNodes[m_currentPageNodes.Count - 1];
-            if (page.isAsyncUI)
-                ShowPage(page.name, page, () => { closePage.Hide(); });
-            else
-            {
-                ShowPage(page.name, page);
+            //Debug.Log("Back&Close PageNodes Count:" + m_currentPageNodes.Count);
 
-                //after show to hide().
-                closePage.Hide();
-            }
-        }
-    }
+            if (m_currentPageNodes == null || m_currentPageNodes.Count <= 1) return;
 
-    /// <summary>
-    /// Close target page
-    /// </summary>
-    public static void ClosePage(UIPage target)
-    {
-        if (target == null) return;
-        if (target.isActive() == false)
-        {
-            if (m_currentPageNodes != null)
-            {
-                for (int i = 0; i < m_currentPageNodes.Count; i++)
-                {
-                    if (m_currentPageNodes[i] == target)
-                    {
-                        m_currentPageNodes.RemoveAt(i);
-                        break;
-                    }
-                }
-
-                return;
-            }
-        }
-
-        if (m_currentPageNodes != null && m_currentPageNodes.Count >= 1 &&
-            m_currentPageNodes[m_currentPageNodes.Count - 1] == target)
-        {
+            UIPage closePage = m_currentPageNodes[m_currentPageNodes.Count - 1];
             m_currentPageNodes.RemoveAt(m_currentPageNodes.Count - 1);
 
             //show older page.
@@ -553,58 +464,104 @@ public abstract class UIPage
             {
                 UIPage page = m_currentPageNodes[m_currentPageNodes.Count - 1];
                 if (page.isAsyncUI)
-                    ShowPage(page.name, page, () => { target.Hide(); });
+                    ShowPage(page.name, page, () => { closePage.Hide(); });
                 else
                 {
                     ShowPage(page.name, page);
-                    target.Hide();
-                }
 
-                return;
+                    //after show to hide().
+                    closePage.Hide();
+                }
             }
         }
-        else if (target.CheckIfNeedBack())
+
+        /// <summary>
+        /// Close target page
+        /// </summary>
+        protected static void ClosePage(UIPage target)
         {
-            for (int i = 0; i < m_currentPageNodes.Count; i++)
+            if (target == null) return;
+            if (target.DOIsActive() == false)
             {
-                if (m_currentPageNodes[i] == target)
+                if (m_currentPageNodes != null)
                 {
-                    m_currentPageNodes.RemoveAt(i);
-                    target.Hide();
-                    break;
+                    for (int i = 0; i < m_currentPageNodes.Count; i++)
+                    {
+                        if (m_currentPageNodes[i] == target)
+                        {
+                            m_currentPageNodes.RemoveAt(i);
+                            break;
+                        }
+                    }
+
+                    return;
                 }
+            }
+
+            if (m_currentPageNodes != null && m_currentPageNodes.Count >= 1 &&
+                m_currentPageNodes[m_currentPageNodes.Count - 1] == target)
+            {
+                m_currentPageNodes.RemoveAt(m_currentPageNodes.Count - 1);
+
+                //show older page.
+                //TODO:Sub pages.belong to root node.
+                if (m_currentPageNodes.Count > 0)
+                {
+                    UIPage page = m_currentPageNodes[m_currentPageNodes.Count - 1];
+                    if (page.isAsyncUI)
+                        ShowPage(page.name, page, () => { target.Hide(); });
+                    else
+                    {
+                        ShowPage(page.name, page);
+                        target.Hide();
+                    }
+
+                    return;
+                }
+            }
+            else if (target.CheckIfNeedBack())
+            {
+                for (int i = 0; i < m_currentPageNodes.Count; i++)
+                {
+                    if (m_currentPageNodes[i] == target)
+                    {
+                        m_currentPageNodes.RemoveAt(i);
+                        target.Hide();
+                        break;
+                    }
+                }
+            }
+
+            target.Hide();
+        }
+
+        protected static void ClosePage<T>() where T : UIPage
+        {
+            Type t = typeof(T);
+            string pageName = t.ToString();
+
+            if (m_allPages != null && m_allPages.ContainsKey(pageName))
+            {
+                ClosePage(m_allPages[pageName]);
+            }
+            else
+            {
+                Debug.LogError(pageName + "havnt show yet!");
             }
         }
 
-        target.Hide();
+        protected static void ClosePage(string pageName)
+        {
+            if (m_allPages != null && m_allPages.ContainsKey(pageName))
+            {
+                ClosePage(m_allPages[pageName]);
+            }
+            else
+            {
+                Debug.LogError(pageName + " havnt show yet!");
+            }
+        }
+
+        #endregion
     }
-
-    public static void ClosePage<T>() where T : UIPage
-    {
-        Type t = typeof(T);
-        string pageName = t.ToString();
-
-        if (m_allPages != null && m_allPages.ContainsKey(pageName))
-        {
-            ClosePage(m_allPages[pageName]);
-        }
-        else
-        {
-            Debug.LogError(pageName + "havnt show yet!");
-        }
-    }
-
-    public static void ClosePage(string pageName)
-    {
-        if (m_allPages != null && m_allPages.ContainsKey(pageName))
-        {
-            ClosePage(m_allPages[pageName]);
-        }
-        else
-        {
-            Debug.LogError(pageName + " havnt show yet!");
-        }
-    }
-
-    #endregion
 }

@@ -1,27 +1,30 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using MyPackages.UIFramework.Runtime;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class UITopBar : UIPage
+namespace MyPackages.UIFramework.Sample.Scripts
 {
-
-    public UITopBar() : base(UIType.Fixed, UIMode.DoNothing, UICollider.None)
+    public class UITopBar : UIPage
     {
-        uiPath = "Prefab/Topbar";
-    }
 
-    public override void Awake(GameObject go)
-    {
-        this.gameObject.transform.Find("btn_back").GetComponent<Button>().onClick.AddListener(() =>
+        public UITopBar() : base(UIType.Fixed, UIMode.DoNothing, UICollider.None)
         {
-            UIPage.ClosePage();
-        });
+            uiPath = "Prefab/Topbar";
+        }
 
-        this.gameObject.transform.Find("btn_notice").GetComponent<Button>().onClick.AddListener(() =>
+        protected override void Awake(GameObject go)
         {
-            ShowPage<UINotice>();
-        });
+            this.gameObject.transform.Find("btn_back").GetComponent<Button>().onClick.AddListener(() =>
+            {
+                ClosePage();
+            });
+
+            this.gameObject.transform.Find("btn_notice").GetComponent<Button>().onClick.AddListener(() =>
+            {
+                ShowPage<UINotice>();
+            });
+        }
+
+
     }
-
-
 }

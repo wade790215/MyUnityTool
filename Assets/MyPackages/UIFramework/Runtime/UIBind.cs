@@ -1,16 +1,16 @@
 ﻿using UnityEngine;
 
-public class UIBind
+namespace MyPackages.UIFramework.Runtime
 {
-    static bool isBind = false;
-
-    public static void Bind()
+    public class UIBind
     {
-        if (!isBind)
+        static bool isBind = false;
+
+        public static void Bind()
         {
+            if (isBind) return;
             isBind = true;
             UIPage.delegateSyncLoadUI = Resources.Load;
-            //TTUIPage.delegateAsyncLoadUI = UILoader.Load;
         }
     }
 }
