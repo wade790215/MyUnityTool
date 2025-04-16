@@ -451,15 +451,11 @@ namespace MyPackages.UIFramework.Runtime
         /// </summary>
         protected static void ClosePage()
         {
-            //Debug.Log("Back&Close PageNodes Count:" + m_currentPageNodes.Count);
-
             if (m_currentPageNodes == null || m_currentPageNodes.Count <= 1) return;
 
             UIPage closePage = m_currentPageNodes[m_currentPageNodes.Count - 1];
             m_currentPageNodes.RemoveAt(m_currentPageNodes.Count - 1);
 
-            //show older page.
-            //TODO:Sub pages.belong to root node.
             if (m_currentPageNodes.Count > 0)
             {
                 UIPage page = m_currentPageNodes[m_currentPageNodes.Count - 1];
@@ -468,17 +464,40 @@ namespace MyPackages.UIFramework.Runtime
                 else
                 {
                     ShowPage(page.name, page);
-
-                    //after show to hide().
                     closePage.Hide();
                 }
             }
         }
 
-        /// <summary>
-        /// Close target page
-        /// </summary>
-        protected static void ClosePage(UIPage target)
+    
+        public static void ClosePage<T>() where T : UIPage
+        {
+            Type t = typeof(T);
+            string pageName = t.ToString();
+
+            if (m_allPages != null && m_allPages.ContainsKey(pageName))
+            {
+                ClosePage(m_allPages[pageName]);
+            }
+            else
+            {
+                Debug.LogError(pageName + "havnt show yet!");
+            }
+        }
+
+        public static void ClosePage(string pageName)
+        {
+            if (m_allPages != null && m_allPages.ContainsKey(pageName))
+            {
+                ClosePage(m_allPages[pageName]);
+            }
+            else
+            {
+                Debug.LogError(pageName + " havnt show yet!");
+            }
+        }
+        
+        private static void ClosePage(UIPage target)
         {
             if (target == null) return;
             if (target.DOIsActive() == false)
@@ -535,32 +554,6 @@ namespace MyPackages.UIFramework.Runtime
             target.Hide();
         }
 
-        protected static void ClosePage<T>() where T : UIPage
-        {
-            Type t = typeof(T);
-            string pageName = t.ToString();
-
-            if (m_allPages != null && m_allPages.ContainsKey(pageName))
-            {
-                ClosePage(m_allPages[pageName]);
-            }
-            else
-            {
-                Debug.LogError(pageName + "havnt show yet!");
-            }
-        }
-
-        protected static void ClosePage(string pageName)
-        {
-            if (m_allPages != null && m_allPages.ContainsKey(pageName))
-            {
-                ClosePage(m_allPages[pageName]);
-            }
-            else
-            {
-                Debug.LogError(pageName + " havnt show yet!");
-            }
-        }
 
         #endregion
     }
