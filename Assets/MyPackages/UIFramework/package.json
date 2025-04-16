@@ -1,6 +1,6 @@
 {
   "name": "com.wade.uiframework",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "UI Framework",
   "description": "A flexible and extensible UI framework for Unity projects.",
   "unity": "2022.3",
