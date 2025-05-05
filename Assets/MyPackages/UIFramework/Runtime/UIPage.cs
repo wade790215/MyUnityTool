@@ -135,7 +135,7 @@ namespace MyPackages.UIFramework.Runtime
             UIRoot.Instance.StartCoroutine(AsyncShow(callback));
         }
 
-        IEnumerator AsyncShow(Action callback)
+        private IEnumerator AsyncShow(Action callback)
         {
             //Instance UI
             if (gameObject == null && string.IsNullOrEmpty(uiPath) == false)
@@ -153,7 +153,7 @@ namespace MyPackages.UIFramework.Runtime
                     Active();
                     Refresh();
                     PopNode(this);
-                    if (callback != null) callback();
+                    callback?.Invoke();
                 });
 
                 float _t0 = Time.realtimeSinceStartup;
@@ -343,7 +343,6 @@ namespace MyPackages.UIFramework.Runtime
         {
             ShowPage(pageName, pageInstance, callback, null, true);
         }
-
         
         /// <summary>
         /// Async Show Page With Page Data Input.
@@ -449,7 +448,7 @@ namespace MyPackages.UIFramework.Runtime
         /// <summary>
         /// close current page in the "top" node.
         /// </summary>
-        protected static void ClosePage()
+        public static void ClosePage()
         {
             if (m_currentPageNodes == null || m_currentPageNodes.Count <= 1) return;
 
@@ -468,7 +467,6 @@ namespace MyPackages.UIFramework.Runtime
                 }
             }
         }
-
     
         public static void ClosePage<T>() where T : UIPage
         {
