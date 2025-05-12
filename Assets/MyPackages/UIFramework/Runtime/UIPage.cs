@@ -235,8 +235,8 @@ namespace MyPackages.UIFramework.Runtime
 
         public override string ToString()
         {
-            return ">Name:" + name + ",ID:" + id + ",Type:" + type.ToString() + ",ShowMode:" + mode.ToString() +
-                   ",Collider:" + collider.ToString();
+            return ">Name:" + name + ",ID:" + id + ",Type:" + type + ",ShowMode:" + mode +
+                   ",Collider:" + collider;
         }
 
         private bool DOIsActive()
