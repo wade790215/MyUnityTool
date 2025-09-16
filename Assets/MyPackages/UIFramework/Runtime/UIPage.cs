@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -98,6 +99,14 @@ namespace MyPackages.UIFramework.Runtime
         /// </summary>
         private void Show()
         {
+            LoadUI();
+            Active();
+            Refresh();
+            PopNode(this);
+        }
+
+        private void LoadUI()
+        {
             if (gameObject == null && string.IsNullOrEmpty(uiPath) == false)
             {
                 GameObject go = null;
@@ -113,18 +122,13 @@ namespace MyPackages.UIFramework.Runtime
 
                 if (go == null)
                 {
-                    Debug.LogError("[UI] Cant sync load your ui prefab.");
+                    Debug.LogError("[UI] Cant load your ui prefab.");
                     return;
                 }
 
                 AnchorUIGameObject(go);
                 Awake(go);
-                isAsyncUI = false;
             }
-
-            Active();
-            Refresh();
-            PopNode(this);
         }
 
         /// <summary>
@@ -311,8 +315,64 @@ namespace MyPackages.UIFramework.Runtime
         {
             m_currentPageNodes.Clear();
         }
+        
+        public static void PreloadPage<T>() where T : UIPage, new()
+        {
+            var pageName = typeof(T).ToString();
 
-        /// <summary>
+            if (m_allPages != null && m_allPages.ContainsKey(pageName))
+                return;
+
+            var instance = new T();
+            if (m_allPages == null)
+                m_allPages = new Dictionary<string, UIPage>();
+
+            m_allPages.Add(pageName, instance);
+            instance.LoadUI(); 
+        }
+        
+        public async Task<GameObject> PreloadPageAsync()
+        {
+            if (gameObject != null || string.IsNullOrEmpty(uiPath))
+            {
+                Debug.LogWarning($"[UI] PreloadPageAsync skipped, uiPath is empty or already loaded. {uiPath}");
+                return gameObject; 
+            }
+
+            var tcs = new TaskCompletionSource<GameObject>();
+            GameObject go = null;
+
+            delegateAsyncLoadUI(uiPath, (o) =>
+            {
+                if (o != null)
+                {
+                    go = Object.Instantiate(o) as GameObject;
+                    AnchorUIGameObject(go);
+                    Awake(go);
+                    isAsyncUI = true;
+
+                    tcs.TrySetResult(go);
+                }
+                else
+                {
+                    tcs.TrySetException(new Exception($"[UI] Failed to load {uiPath}"));
+                }
+            });
+
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(10));
+            var finishedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+
+            if (finishedTask == timeoutTask)
+            {
+                Debug.LogError($"[UI] PreloadPageAsync timeout for {uiPath}");
+                return null;
+            }
+
+            return await tcs.Task;
+        }
+
+        
+       /// <summary>
         /// Show Page
         /// </summary>
         /// <param name="pageName"></param>
