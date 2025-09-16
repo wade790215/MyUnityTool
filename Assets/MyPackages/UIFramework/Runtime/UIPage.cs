@@ -35,6 +35,7 @@ namespace MyPackages.UIFramework.Runtime
         public static List<UIPage> currentPageNodes => m_currentPageNodes;
         public static Dictionary<string, UIPage> allPages => m_allPages;
         public static Func<string, Object> delegateSyncLoadUI = null;
+        
 
         private static Dictionary<string, UIPage> m_allPages;
         private static List<UIPage> m_currentPageNodes;
