@@ -1,9 +1,9 @@
 {
   "name": "com.wade.uiframework",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "displayName": "UI Framework",
   "description": "A flexible and extensible UI framework for Unity projects.",
-  "unity": "2022.3",
+  "unity": "6000.0.48",
   "author": {
     "name": "Wade",
     "email": "w0652039@gmail.com"
