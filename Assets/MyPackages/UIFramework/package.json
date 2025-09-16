@@ -3,7 +3,7 @@
   "version": "1.0.3",
   "displayName": "UI Framework",
   "description": "A flexible and extensible UI framework for Unity projects.",
-  "unity": "6000.0.48",
+  "unity": "2022.3",
   "author": {
     "name": "Wade",
     "email": "w0652039@gmail.com"
